@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Ujian</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Ujian Selesai!</h1>
+        <p id="namaPeserta" class="summary-text"></p>
+        <p id="correctCount" class="summary-text"></p>
+        <p id="incorrectCount" class="summary-text"></p>
+        <div class="score-box">
+            <p>Skor Anda:</p>
+            <p class="score" id="finalScore"></p>
+        </div>
+        <span class="button-primary">Selesai</span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.1/dist/confetti.browser.min.js"></script>
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

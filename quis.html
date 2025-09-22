@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Matematika</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .header .info-box, .header .question-number {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="question-number">SOAL NOMOR 12</div>
+        <div class="info-box" id="timer">
+            SISA WAKTU : 01:19:46
+        </div>
+        <button class="info-box" id="showQuestionList">DAFTAR SOAL</button>
+    </div>
+
+    <div class="quiz-container">
+        <div class="question-panel">
+            <div class="question-text"></div>
+        </div>
+        <div class="answer-panel">
+            <h3>PILIHAN JAWABAN</h3>
+            <button class="answer-button"></button>
+            <button class="answer-button"></button>
+            <button class="answer-button"></button>
+            <button class="answer-button"></button>
+        </div>
+    </div>
+
+    <div class="navigation-buttons">
+        <button class="nav-button nav-button-prev">SOAL SEBELUMNYA</button>
+        <button class="nav-button nav-button-next">SOAL SELANJUTNYA</button>
+    </div>
+
+    <div id="questionListModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Daftar Soal</h2>
+            <div id="questionListGrid"></div>
+        </div>
+    </div>
+
+    <div id="warningModal" class="modal">
+        <div class="modal-content">
+            <p id="warningMessage"></p>
+            <div id="unansweredList"></div>
+            <button id="returnToQuizBtn" class="button-primary">Kembali ke Kuis</button>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
