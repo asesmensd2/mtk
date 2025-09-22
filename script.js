@@ -224,8 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         correctCountElement.textContent = `Jawaban Benar: ${finalScore}`;
         incorrectCountElement.textContent = `Jawaban Salah: ${incorrectAnswers}`;
 
-        localStorage.removeItem('answers');
-        localStorage.removeItem('skorPeserta');
+        
 
         if (typeof confetti !== 'undefined') {
             const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
