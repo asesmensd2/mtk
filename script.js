@@ -1,4 +1,4 @@
-// script.js
+// script.js (Kode Lengkap)
 
 document.addEventListener('DOMContentLoaded', () => {
     const namaLengkapInput = document.getElementById('namaLengkap');
@@ -34,117 +34,114 @@ document.addEventListener('DOMContentLoaded', () => {
         const prevButton = document.querySelector('.nav-button-prev');
         const nextButton = document.querySelector('.nav-button-next');
         const timerDisplay = document.getElementById('timer');
-        const showQuestionListBtn = document.getElementById('showQuestionList');
-        const questionListModal = document.getElementById('questionListModal');
-        const questionListGrid = document.getElementById('questionListGrid');
-        const warningModal = document.getElementById('warningModal');
-        const warningMessage = document.getElementById('warningMessage');
-        const unansweredList = document.getElementById('unansweredList');
-        const returnToQuizBtn = document.getElementById('returnToQuizBtn');
-        const quizHeader = document.querySelector('.header');
-
-        function loadQuestion(index) {
-            const question = questions[index];
-            questionNumber.textContent = `SOAL NOMOR ${index + 1}`;
-            questionText.textContent = question.soal;
-            
-            answerButtons.forEach((button, i) => {
-                button.textContent = question.pilihan[i];
-                button.classList.remove('selected');
-                
-                const savedAnswer = answers[index];
-                if (savedAnswer && savedAnswer === question.pilihan[i]) {
-                    button.classList.add('selected');
-                }
-            });
-            
-            updateNavigationButtons(index);
-            updateQuestionListGrid();
-        }
-
-        function updateNavigationButtons(index) {
-            if (index === 0) {
-                prevButton.style.display = 'none';
-            } else {
-                prevButton.style.display = 'inline-block';
-            }
-            if (index === questions.length - 1) {
-                nextButton.textContent = 'SELESAI';
-                nextButton.classList.add('finish-button');
-            } else {
-                nextButton.textContent = 'SOAL SELANJUTNYA';
-                nextButton.classList.remove('finish-button');
-            }
-        }
-
-        function updateQuestionListGrid() {
-            if (questionListGrid) {
-                questionListGrid.innerHTML = '';
-                questions.forEach((q, index) => {
-                    const numberBox = document.createElement('div');
-                    numberBox.textContent = index + 1;
-                    numberBox.classList.add('question-number-box');
-                    if (answers[index]) {
-                        numberBox.classList.add('answered');
-                    }
-                    numberBox.addEventListener('click', () => {
-                        currentQuestionIndex = index;
-                        loadQuestion(currentQuestionIndex);
-                        questionListModal.style.display = 'none';
-                    });
-                    questionListGrid.appendChild(numberBox);
-                });
-            }
-        }
-
-        let timeLimitInMinutes = 120; // Waktu ujian dalam menit
-        let endTime = localStorage.getItem('endTime');
+        let totalTime = 90 * 60;
         let timerInterval;
 
-        if (!endTime) {
-            endTime = new Date().getTime() + timeLimitInMinutes * 60 * 1000;
-            localStorage.setItem('endTime', endTime);
-        } else {
-            endTime = parseInt(endTime);
+        const modal = document.getElementById('questionListModal');
+        const showQuestionListBtn = document.getElementById('showQuestionList');
+        const closeModalBtn = document.querySelector('.close-button');
+        const questionListGrid = document.getElementById('questionListGrid');
+
+        const warningModal = document.getElementById('warningModal');
+        const warningMessage = document.getElementById('warningMessage');
+        const returnToQuizBtn = document.getElementById('returnToQuizBtn');
+        const unansweredList = document.getElementById('unansweredList');
+
+        showQuestionListBtn.onclick = function() {
+            modal.style.display = "flex";
+            generateQuestionList();
+        };
+
+        closeModalBtn.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        if (returnToQuizBtn) {
+            returnToQuizBtn.onclick = function() {
+                warningModal.style.display = 'none';
+            };
         }
 
         function startTimer() {
             timerInterval = setInterval(() => {
-                const now = new Date().getTime();
-                const timeLeft = endTime - now;
-
-                if (timeLeft < 0) {
+                const minutes = Math.floor(totalTime / 60);
+                const seconds = totalTime % 60;
+                timerDisplay.textContent = `SISA WAKTU : ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                totalTime--;
+                if (totalTime < 0) {
                     clearInterval(timerInterval);
-                    alert("Waktu ujian telah habis!");
-                    // Hitung skor dan alihkan ke halaman hasil
-                    const answers = JSON.parse(localStorage.getItem('answers')) || [];
-                    let score = 0;
-                    answers.forEach((answer, index) => {
-                        if (questions[index] && answer === questions[index].jawabanBenar) {
-                            score++;
-                        }
-                    });
-
-                    const resultData = {
-                        nama: localStorage.getItem('namaPeserta'),
-                        skor: score,
-                        answers: answers
-                    };
-
-                    let allResults = JSON.parse(localStorage.getItem('allUjianResults')) || [];
-                    allResults.push(resultData);
-                    localStorage.setItem('allUjianResults', JSON.stringify(allResults));
-
-                    localStorage.setItem('skorPeserta', score);
+                    calculateScore();
+                    alert('Waktu habis! Kuis selesai.');
                     window.location.href = 'hasil.html';
-                    return;
+                }
+            }, 1000);
+        }
+
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            if (questions.length === 0) {
+                questionText.textContent = "Tidak ada soal yang tersedia.";
+                prevButton.style.display = 'none';
+                nextButton.style.display = 'none';
+                return;
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+            questionNumber.textContent = `SOAL NOMOR ${currentQuestionIndex + 1}`;
+            questionText.textContent = currentQuestion.soal;
+
+            const choices = ['A. ', 'B. ', 'C. ', 'D. '];
+            answerButtons.forEach((button, i) => {
+                button.innerHTML = `<span>${choices[i]}</span>${currentQuestion.pilihan[i]}`;
+                button.classList.remove('selected');
+            });
+
+            if (answers[currentQuestionIndex]) {
+                answerButtons.forEach(button => {
+                    if (button.textContent.substring(3) === answers[currentQuestionIndex]) {
+                        button.classList.add('selected');
+                    }
+                });
+            }
+
+            if (currentQuestionIndex === 0) {
+                prevButton.style.display = 'none';
+                navButtons.style.justifyContent = 'flex-end';
+            } else {
+                prevButton.style.display = 'block';
+                navButtons.style.justifyContent = 'space-between';
+            }
+
+            nextButton.textContent = currentQuestionIndex === questions.length - 1 ? 'SELESAI' : 'SOAL SELANJUTNYA';
+        }
+
+        function generateQuestionList() {
+            questionListGrid.innerHTML = '';
+            questions.forEach((q, index) => {
+                const questionItem = document.createElement('div');
+                questionItem.textContent = index + 1;
+                questionItem.classList.add('question-item');
+
+                if (answers[index]) {
+                    questionItem.classList.add('answered');
                 }
 
-                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                if (index === currentQuestionIndex) {
+                    questionItem.classList.add('current');
+                }
 
-                timerDisplay.textContent = `SISA WAKTU : ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            }, 1000);
+                questionItem.addEventListener('click', () => {
+                    loadQuestion(index);
+                    modal.style.display = "none";
+                });
+                questionListGrid.appendChild(questionItem);
+            });
         }
 
         function checkUnansweredQuestions() {
@@ -159,14 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         answerButtons.forEach(button => {
             button.addEventListener('click', () => {
-                const selectedAnswer = button.textContent;
+                const selectedAnswer = button.textContent.substring(3);
                 answers[currentQuestionIndex] = selectedAnswer;
-                localStorage.setItem('answers', JSON.stringify(answers));
-
                 answerButtons.forEach(btn => btn.classList.remove('selected'));
                 button.classList.add('selected');
-                
-                updateQuestionListGrid();
+                localStorage.setItem('answers', JSON.stringify(answers));
             });
         });
 
@@ -202,65 +196,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     warningModal.style.display = 'flex';
                 } else {
-                    const answers = JSON.parse(localStorage.getItem('answers')) || [];
-                    let score = 0;
-                    const resultData = {
-                        nama: localStorage.getItem('namaPeserta'),
-                        skor: 0,
-                        answers: answers,
-                        correctAnswers: []
-                    };
-                    answers.forEach((answer, index) => {
-                        if (questions[index] && answer === questions[index].jawabanBenar) {
-                            score++;
-                            resultData.correctAnswers[index] = true;
-                        } else {
-                            resultData.correctAnswers[index] = false;
-                        }
-                    });
-                    resultData.skor = score;
-
-                    let allResults = JSON.parse(localStorage.getItem('allUjianResults')) || [];
-                    allResults.push(resultData);
-                    localStorage.setItem('allUjianResults', JSON.stringify(allResults));
-
-                    localStorage.setItem('skorPeserta', score);
-                    
+                    calculateScore();
                     clearInterval(timerInterval);
                     window.location.href = 'hasil.html';
                 }
             }
         });
 
-        showQuestionListBtn.addEventListener('click', () => {
-            questionListModal.style.display = 'flex';
-        });
-
-        const closeButton = questionListModal.querySelector('.close-button');
-        if (closeButton) {
-            closeButton.addEventListener('click', () => {
-                questionListModal.style.display = 'none';
-            });
-        }
-        
-        returnToQuizBtn.addEventListener('click', () => {
-            warningModal.style.display = 'none';
-        });
-
-        window.addEventListener('click', (event) => {
-            if (event.target === questionListModal) {
-                questionListModal.style.display = 'none';
-            }
-            if (event.target === warningModal) {
-                warningModal.style.display = 'none';
-            }
-        });
-
         loadQuestion(currentQuestionIndex);
         startTimer();
     }
-    
+
     const scoreElement = document.getElementById('finalScore');
+    const namaPesertaElement = document.getElementById('namaPeserta');
+    const correctCountElement = document.getElementById('correctCount');
+    const incorrectCountElement = document.getElementById('incorrectCount');
+
     if (scoreElement) {
         const finalScore = localStorage.getItem('skorPeserta') || 0;
         const namaPeserta = localStorage.getItem('namaPeserta') || "Nama Tidak Ditemukan";
@@ -269,11 +220,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const incorrectAnswers = totalSoal - finalScore;
 
         scoreElement.textContent = nilaiAkhir;
-        document.getElementById('namaPeserta').textContent = `Nama: ${namaPeserta}`;
-        document.getElementById('correctCount').textContent = `Jawaban Benar: ${finalScore}`;
-        document.getElementById('incorrectCount').textContent = `Jawaban Salah: ${incorrectAnswers}`;
+        namaPesertaElement.textContent = `Nama: ${namaPeserta}`;
+        correctCountElement.textContent = `Jawaban Benar: ${finalScore}`;
+        incorrectCountElement.textContent = `Jawaban Salah: ${incorrectAnswers}`;
 
-        if (nilaiAkhir > 70) {
+        localStorage.removeItem('answers');
+        localStorage.removeItem('skorPeserta');
+
+        if (typeof confetti !== 'undefined') {
             const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
             function randomInRange(min, max) {
                 return Math.random() * (max - min) + min;
@@ -299,11 +253,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1000);
         }
     }
+
+    function calculateScore() {
+        const answers = JSON.parse(localStorage.getItem('answers')) || [];
+        let score = 0;
+        answers.forEach((answer, index) => {
+            if (questions[index] && answer === questions[index].jawabanBenar) {
+                score++;
+            }
+        });
+        localStorage.setItem('skorPeserta', score);
+    }
 });
 
-// KODE INI AKAN MENJAGA HASIL DI LOCALSTORAGE AGAR TIDAK HILANG SETELAH REFRESH
-// DAN MENCEGAH PENGGUNA KEMBALI KE HALAMAN SEBELUMNYA
-if (window.location.pathname.includes('hasil.html') || window.location.pathname.includes('quis.html')) {
+if (window.location.pathname.includes('hasil.html')) {
     window.history.pushState(null, null, window.location.href);
     window.addEventListener('popstate', function (event) {
         window.history.pushState(null, null, window.location.href);
